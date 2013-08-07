@@ -15,7 +15,7 @@ df = data.frame(
                    ),
     p0 = c(rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),
            rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),
-           rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.35, 0.03)
+           rnorm(50, 0.10, 0.03),rnorm(50, 0.15, 0.03),rnorm(50, 0.20, 0.03)
           ),
     by=rep(factor(c("Surgeon A", "Surgeon B", "Surgeon C")), times=c(150,150,150))
   )
@@ -106,8 +106,8 @@ cusum.obs_minus_exp = function(failure_indicator, p0, by=NULL, scale_ylim = 20) 
 #cp= cusum.obs_minus_exp(rbinom(200,1,0.10), c(rnorm(100, 0.10, 0.03),rnorm(100, 0.10, 0.03)))
 #cp= cusum.obs_minus_exp(rbinom(200,1,0.10), 0.10)
 #cp= cusum.obs_minus_exp(df$is_failure, 0.10, by=df$by)
-cp= cusum.obs_minus_exp(df$is_failure, df$p0, by=df$by)
-print(cp)
+#cp= cusum.obs_minus_exp(df$is_failure, df$p0, by=df$by)
+#print(cp)
 
 ## Implementation of a cusum chart and cusum log-likelihood chart with control limits as described in
 ## Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S., Bonser, R. S., & Angelini, G. D. (2004). Control chart methods for monitoring cardiac surgical performance and their interpretation Chris. The Journal of Thoracic and Cardiovascular Surgery, 128(6), 811–819. doi:10.1016/j.jtcvs.2004.03.011 
@@ -115,7 +115,7 @@ print(cp)
 ## @failure_indicator indicator variable consiting of c(0,1), where 0 is no failure and 1 is failure for each procedure
 ## @p0 the acceptable event rate
 ## @p1 the unacceptable event rate we want to detect
-cusum = function(failure_indicator, p0, p1, alpha=.05, beta=.05, by=NULL, loglike_chart=FALSE) {
+cusum = function(failure_indicator, p0, p1, alpha=.01, beta=.01, by=NULL, loglike_chart=FALSE) {
   require(plyr)
   require(ggplot2)
   
@@ -211,3 +211,91 @@ cusum = function(failure_indicator, p0, p1, alpha=.05, beta=.05, by=NULL, loglik
 
 #cusum_plot = cusum(df$is_failure, .10, .20, alpha=0.01,beta=0.01, loglike_chart=TRUE, by=df$by)
 #print(cusum_plot)
+
+
+## Implementation of a risk-adjusted sequential probability ratio test (SPRT) chart with control limits as described in
+## Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S., Bonser, R. S., & Angelini, G. D. (2004). Control chart methods for monitoring cardiac surgical performance and their interpretation Chris. The Journal of Thoracic and Cardiovascular Surgery, 128(6), 811–819. doi:10.1016/j.jtcvs.2004.03.011 
+## in Appendix A
+##
+## For the unadjusted chart, increase in risk is defined in terms of the unacceptable failure rate. However, when risk for each patient varies, it does not make sense to have a common unacceptable rate applied across all operations
+##
+## This variable unacceptable rate is achieved by defining the increase in terms of a relative risk (ie, odds ratio), rather than a specific rate.
+##
+##
+## @failure_indicator indicator variable consiting of c(0,1), where 0 is no failure and 1 is failure for each procedure
+## @p0 a numeric vector representing the acceptable risk score/acceptable failure rate for each single individual. I.e. STS Score values, or emperically modeled risks
+## @OR the increase in relative risk to the modeled acceptable risk, where An odds ratio of 2, for example, would equate approximately to a doubling of patientspecific risk of failure, an odds ratio of 1.5 to a 50% increase in failure risk, and so on.
+
+cusum.sprt = function(failure_indicator, p0, OR, alpha=.01, beta=.01, by=NULL) {
+  require(plyr)
+  require(ggplot2)
+  
+  stopifnot(is.numeric(failure_indicator))
+  stopifnot(failure_indicator %in% c(0,1))
+  stopifnot(is.numeric(p0), p0 >= 0 & p0 <= 1 & length(p0) == length(failure_indicator))
+  stopifnot(is.numeric(OR), OR >= 1)
+  stopifnot(is.numeric(alpha), alpha >= 0, alpha <= 1)
+  stopifnot(is.numeric(beta), beta >= 0, beta <= 1)
+  if (!is.null(by)) {
+    stopifnot(is.factor(by))
+    stopifnot(length(failure_indicator) == length(by))
+  }
+  
+  h0 = log((1-alpha)/beta)/log(OR)
+  h1 = log((1-beta)/alpha)/log(OR)
+  n = length(failure_indicator)
+  
+  if (is.null(by)) {
+    d = data.frame(
+      n=1:n,
+      failure=failure_indicator,
+      T_horizontal = cumsum(failure_indicator - (log((1-p0)+(OR*p0))/log(OR)))
+    )  
+  } else {
+    d = data.frame(
+      failure=failure_indicator,
+      p0=p0,
+      by=by
+    )
+    
+    d = ddply(d, .(by), function(sub_d) {      
+      data.frame(
+        n=1:nrow(sub_d),
+        failure=sub_d$failure,
+        T_horizontal = cumsum(sub_d$failure - (log((1-sub_d$p0)+(OR*sub_d$p0))/log(OR))),
+        by=sub_d$by
+      )
+    })
+  }
+  
+  d_ = cbind(d, h0=rep(h0,times=nrow(d)), h1=rep(h1, times=nrow(d)))
+  
+  if (is.null(by)) {
+    p = ggplot(data=d_, aes(y=T_horizontal,x=n))
+  } else {
+    p = ggplot(data=d_, aes(y=T_horizontal,x=n, linetype=by))
+  }
+  
+  p = p + geom_step() 
+  p = p + geom_hline(yintercept=-h0, linetype=2)
+  p = p + geom_hline(yintercept=h1, linetype=2)
+  p = p + geom_hline(yintercept=0, color="lightgrey")
+  
+  p = p + ylab("Cumulative log-likelihood ratio")
+  
+  p <- p + annotate("text", label=paste("Accept H1"), x=-Inf, y=h1*2, hjust=-0.5)#, x=n/5, y=h1*2)
+  p <- p + annotate("text", label=paste("Accept H0"), x=-Inf, y=-h0*2, hjust=-0.5)#, x=n/5, y=-h0*2)
+  
+  p <- p + common_theme
+  p = p + xlab("")
+  
+  #   if (!is.null(by)) {
+  #     p <- p + facet_wrap(~by, as.table=TRUE)
+  #   }
+  
+  return(p)
+}
+#cp= cusum.obs_minus_exp(rbinom(200,1,0.10), c(rnorm(100, 0.10, 0.03),rnorm(100, 0.10, 0.03)))
+#sprt1= cusum.sprt(rbinom(200,1,0.10), rnorm(200, 0.10, 0.03), 1.5)
+#sprt2= cusum.sprt(df$is_failure, df$p0, 1.5, by=df$by)
+#print(sprt2)
