@@ -1,0 +1,124 @@
+```{r,echo=FALSE,results='hide',message=FALSE,warning=FALSE}
+source("functions.R")
+```
+
+Cusum Control Chart Package - v0.7
+========================================================
+_Author_: Alex Meyer
+
+_Date_:  `r format(Sys.time(), "%d.%m.%Y")`
+
+This R Package implements the charts as described by Rogers et. al 2004. Cusum control charts are devices for monitoring arbitrary processes for a prespecified event. This package and manual uses the term failure instead of event, although any other type of event such as successes could be monitored as well. The processes of our interest are typically surgical procedures.
+
+To create a basic control charts 4 parameters have to be specified:
+ * $p0$: risk of failure when the process is in control (acceptable failure rate for the procedure)
+ * $p1$, where $p1>p0$: failure rate considered unacceptable
+ * $alpha$: Type I error (the probability of concluding that the failure rate has increased, when in fact it has not)
+ * $beta$: Type II error (the probability of concluding that the failure rate has not increased, when in fact it has)
+ 
+### Anatomy of a Cusum Control Chart
+A cusum chart shows the cumulative sum of failures for a given process. There are two boundaries shown on the graph.
+
+If the cusum curve...
+ * ... lies __within the boundaries__, there is not enough evidence for a significant conclusion, thus there is still need for monitoring!
+ * ... __crossed the upper boundary__, we can conclude that the failure rate has increased to the unacceptable event rate $p1$ ($p<0.05$)
+ * ... __crossed the lower boundary__, we can conclude that the failure rate is less than or equal to the acceptable event rate $p0$ ($p<0.05$)
+ 
+_"The natural progression of the graph for an individual or institution with acceptable performance is toward the lower boundary for this method of constructing control limits."_  (Rogers et. al, 2004)
+
+### Cumulative Failure Charts
+
+For the following examples a data set is simulated by binomial sampling with three specified probabilties. The simulated dataset contains data for three different surgeons. 
+
+#### Unadjusted Cumulative Failure Chart
+The parameters were specified as:
+* $p0 = .1$
+* $p1 = .2$
+* $alpha = .01$
+* $beta = .01$
+
+```{r,message=FALSE,echo=FALSE}
+cusum_plot = cusum(
+              failure_indicator=df$is_failure,
+              p0=.10,
+              p1=.20,
+              alpha=0.01,
+              beta=0.01,
+              by=df$by
+              )
+print(cusum_plot)
+```
+#### Unadjusted Cumulative log-likelihood ratio test charts
+_"Interpretation of the graph in relation to the boundary lines is the same as for the cumulative failures chart. If performance is acceptable, the graph will tend downward toward the lower boundary; it will not follow the horizontal axis."_ (Rogers et. al, 2004)
+
+The parameters were specified as:
+* $p0 = .1$
+* $p1 = .2$
+* $alpha = .01$
+* $beta = .01$
+
+```{r,message=FALSE,echo=FALSE}
+cusum_plot = cusum(
+              failure_indicator=df$is_failure,
+              p0=.10,
+              p1=.20,
+              alpha=0.01,
+              beta=0.01,
+              by=df$by,
+              loglike_chart=TRUE
+              )
+print(cusum_plot)
+```
+
+#### Cumulative observed minus expected failure graph
+With the previously mentioned graphs, the expected failure rate will naturally progress towards the lower boundary, which is somewhat counter-intuitive.
+
+By using the _Cumulative observed minus expected failure graph_, the graph will roughly oscillate around the horizontal axis if if the performance is does not deviate from the acceptable rate of failures. If any major trend is visible, most likely significant deviance is observed. 
+
+This graph does __not show any inferential boundaries_, so it should be interpreted only in conjunction with the already mentioned graph types.
+
+The parameters were specified as:
+* $p0 = .1$
+
+```{r,message=FALSE,echo=FALSE}
+cusum_plot = cusum.obs_minus_exp(
+              failure_indicator=df$is_failure,
+              p0=.10,
+              by=df$by
+              )
+print(cusum_plot)
+```
+
+### Risk-adjusted Cumulative Failure Charts
+So far we have discussed only unadjusted cumulative failure charts. So basically we assumed the acceptable and the unacceptbale failure rates are the same among all patients. In the following we adjust for the case-mix by supplying an individual acceptable failure rate for each patient calculated by using an empirically derived risk model or an accepted risk model such as the ESII or STS-Score.
+
+When using risk adjusted calculation, we can control for confounders and risk determining factors to facilitate comparison.
+
+However, Rogers et. al (2004) mention _"Monitoring a health-care process is not the same as monitoring a manufacturing process; case mix represents a fundamental difference, and risk adjustment is imperfect and cannot remove all confounding."_.
+
+#### Comparison of unadjusted und risk adjusted Cumulative observed minus expected failure charts
+
+The upper graph is plotted using a fixed $p0 = .10$ acceptable failure rate. The lower is the  same plot, only using a simulated failure rate $p0i ~ N(µ=0.10, sd=0.03)$ for each individual procedure.
+The failure rate is simulated using a probability of 10%
+
+```{r,message=FALSE,echo=FALSE}
+cp1 = cusum.obs_minus_exp(rbinom(200,1,0.10), 0.10) + ggtitle("Unadjusted Plot - p0=0.10")
+cp2 = cusum.obs_minus_exp(rbinom(200,1,0.10), c(rnorm(100, 0.10, 0.03),rnorm(100, 0.10, 0.03))) + ggtitle("Risk-adjusted Plot - p0i ~ N(µ=0.10, sd=0.03)")
+
+library(gridExtra)
+grid.arrange(cp1,cp2)
+```
+
+The next set of plots show a simulated set of operations with the first 100 cases having a simulated failure rate of 10 %, the 100 consecutive cases however having a raising rate up to 20 %.
+
+The upper graph is plotted again using a fixed $p0 = .10$ acceptable failure rate. The lower plot however accounts for a raising case complexity  using a simulated failure rate $p0i ~ N(µ=0.10, sd=0.03)$ for the first 100 patients, and then $p0i ~ N(µ=0.20, sd=0.03)$ each individual procedure.
+
+```{r,message=FALSE,echo=FALSE,message=FALSE}
+cp1 = cusum.obs_minus_exp(c(rbinom(100,1,0.10), rbinom(100,1,0.20)), 0.10, scale_ylim=30) + ggtitle("Unadjusted Plot")
+cp2 = cusum.obs_minus_exp(c(rbinom(100,1,0.10), rbinom(100,1,0.20)), c(rnorm(100, 0.10, 0.03),rnorm(100, 0.20, 0.03)), scale_ylim=30) + ggtitle("Risk-adjusted Plot")
+
+library(gridExtra)
+grid.arrange(cp1,cp2)
+```
+
+#### Comparison of unadjusted und risk adjusted Cumulative Failure  and Cumulative log-likelihood ratio test charts
