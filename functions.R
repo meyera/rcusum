@@ -1,5 +1,5 @@
 library(ggplot2)
-
+ 
 set.seed(16)
 common_theme = theme_bw() + theme(axis.line=element_line(colour="black")
                                   ,panel.grid.major=element_blank()

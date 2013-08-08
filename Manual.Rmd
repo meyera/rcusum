@@ -2,7 +2,7 @@
 source("functions.R")
 ```
 
-Cusum Control Chart Package - v0.9
+Cusum Control Chart Package - v1.0
 ========================================================
 _Author_: Alex Meyer
 
@@ -13,8 +13,8 @@ This R Package implements the charts as described by Rogers et. al 2004. Cusum c
 To create a basic control chart 4 parameters have to be specified:
  * $p0$: risk of failure when the process is in control (acceptable failure rate for the procedure)
  * $p1$, where $p1>p0$: failure rate considered unacceptable
- * $alpha$: Type I error (the probability of concluding that the failure rate has increased, when in fact it has not)
- * $beta$: Type II error (the probability of concluding that the failure rate has not increased, when in fact it has)
+ * $\alpha$: Type I error (the probability of concluding that the failure rate has increased, when in fact it has not)
+ * $\beta$: Type II error (the probability of concluding that the failure rate has not increased, when in fact it has)
  
 ### Anatomy of a Cusum Control Chart
 A cusum chart shows the cumulative sum of failures for a given process. There are two boundaries shown on the graph.
@@ -34,8 +34,8 @@ For the following examples a data set is simulated by binomial sampling with thr
 The parameters are specified as:
 * $p0 = .1$
 * $p1 = .2$
-* $alpha = .01$
-* $beta = .01$
+* $\alpha = .01$
+* $\beta = .01$
 
 ```{r,message=FALSE,echo=FALSE}
 cusum_plot = cusum(
@@ -94,7 +94,7 @@ However, Rogers et. al (2004) mention _"Monitoring a health-care process is not 
 
 #### Comparison of unadjusted und risk adjusted Cumulative observed minus expected failure charts
 
-The upper graph is plotted using a fixed $p0 = .10$ acceptable failure rate. The lower is the  same plot, only using a simulated failure rate $p0i = N(µ=0.10, sd=0.03)$ for each individual procedure.
+The upper graph is plotted using a fixed $p0 = .10$ acceptable failure rate. The lower is the  same plot, only using a simulated failure rate $p0_i \sim N(\mu=0.10, \sigma=0.03)$ for each individual procedure.
 The failure rate is simulated using a probability of failure $P(F)=0.1$
 
 ```{r,message=FALSE,echo=FALSE}
@@ -108,7 +108,7 @@ grid.arrange(cp1,cp2)
 The next set of plots show a simulated set of operations with the first 100 cases having a simulated failure rate of 10 %, the 100 consecutive cases however having a raising rate up to 20 %.
 
 The upper graph is plotted again using a fixed $p0 = .10$ acceptable failure rate for all cases.  
-The lower plot however accounts for a raising case complexity  using a simulated failure rate $p0i = N(µ:0.10,sd:0.03)$ for the first 100 patients, and then $p0i = N(µ:0.20,sd:0.03)$ for each individual procedure.
+The lower plot however accounts for a raising case complexity  using a simulated failure rate $p0_i \sim N(\mu=0.10, \sigma=0.03)$ for the first 100 patients, and then $p0_i \sim N(\mu=0.20, \sigma=0.03)$ for each individual procedure.
 
 ```{r,message=FALSE,echo=FALSE,message=FALSE}
 cp1 = cusum.obs_minus_exp(c(rbinom(100,1,0.10), rbinom(100,1,0.20)), 0.10, scale_ylim=30) + ggtitle("Unadjusted Plot")
@@ -128,10 +128,10 @@ However, __when risk for each patient varies, it does not make sense to have a c
 As before: "The natural progression of the risk-adjusted graph for an individual or institution with acceptable performance is toward the lower boundary." (Rogers et al., 2004)
 
 So the following parameters need to be given to construct an risk-adjusted cumulative log-likelihood ratio test chart:
- * $p0i$: the procedure specific risk-adjusted probability of failure
+ * $p0_i$: the procedure specific risk-adjusted probability of failure
  * $OR$: the Odds Ratio --- a relative increase of the patient specific risk considered to be unacceptable
- * $alpha$: Type I error (the probability of concluding that the failure rate has increased, when in fact it has not)
- * $beta$: Type II error (the probability of concluding that the failure rate has not increased, when in fact it has)
+ * $\alpha$: Type I error (the probability of concluding that the failure rate has increased, when in fact it has not)
+ * $\beta$: Type II error (the probability of concluding that the failure rate has not increased, when in fact it has)
  
 Below two graphs are shown. The upper is the same __unadjusted__ cumulative log-likelihood chart as prevousily shown:
 * __Surgeon A__ crosses the lower boundary, so we can conclude that there is enough evidence that his failure rate is equal or below the acceptable failure rate.
