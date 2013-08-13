@@ -40,6 +40,7 @@ df = data.frame(
 #' @references Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S., Bonser, R. S., & Angelini, G. D. (2004). Control chart methods for monitoring cardiac surgical performance and their interpretation Chris. The Journal of Thoracic and Cardiovascular Surgery, 128(6), 811–819. doi:10.1016/j.jtcvs.2004.03.011 
 #' 
 #' @examples
+#' set.seed(16)
 #' df = data.frame(
 #'  is_failure = c(rbinom(50,1,0.10),rbinom(50,1,0.08),rbinom(50,1,0.05),
 #'                  rbinom(50,1,0.10),rbinom(50,1,0.13),rbinom(50,1,0.14),
@@ -163,6 +164,7 @@ cusum.obs_minus_exp = function(failure_indicator, p0, by=NULL, scale_ylim = 20) 
 #' @references Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S., Bonser, R. S., & Angelini, G. D. (2004). Control chart methods for monitoring cardiac surgical performance and their interpretation Chris. The Journal of Thoracic and Cardiovascular Surgery, 128(6), 811–819. doi:10.1016/j.jtcvs.2004.03.011 
 #' 
 #' @examples
+#' set.seed(16)
 #' df = data.frame(
 #'  is_failure = c(rbinom(50,1,0.10),rbinom(50,1,0.08),rbinom(50,1,0.05),
 #'                  rbinom(50,1,0.10),rbinom(50,1,0.13),rbinom(50,1,0.14),
@@ -284,7 +286,7 @@ cusum = function(failure_indicator, p0, p1, alpha=.01, beta=.01, by=NULL, loglik
 #' 
 #' @param failure_indicator a numeric indicator variable consiting of only \code{c(0,1)}, where 0 is no failure and 1 is failure for each procedure
 #' @param p0 a numeric vector representing the acceptable risk score/acceptable failure rate for each single individual. I.e. STS Score values, or emperically modeled risks
-#' @param OR the increase in relative risk to the modeled acceptable risk, where An odds ratio of 2, for example, would equate approximately to a doubling of patientspecific risk of failure, an odds ratio of 1.5 to a 50% increase in failure risk, and so on.
+#' @param OR the increase in relative risk to the modeled acceptable risk, where An odds ratio of 2, for example, would equate approximately to a doubling of patientspecific risk of failure, an odds ratio of 1.5 to a 50 percent increase in failure risk, and so on.
 #' @param alpha Type I error (the probability of concluding that the failure rate has increased, when in fact it has not)
 #' @param beta Type II error (the probability of concluding that the failure rate has not increased, when in fact it has)
 #' @param by a factor vector consisting of the stratification variable.
@@ -298,6 +300,7 @@ cusum = function(failure_indicator, p0, p1, alpha=.01, beta=.01, by=NULL, loglik
 #' @references Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S., Bonser, R. S., & Angelini, G. D. (2004). Control chart methods for monitoring cardiac surgical performance and their interpretation Chris. The Journal of Thoracic and Cardiovascular Surgery, 128(6), 811–819. doi:10.1016/j.jtcvs.2004.03.011 
 #' 
 #' @examples
+#' set.seed(16)
 #' df = data.frame(
 #'  is_failure = c(rbinom(50,1,0.10),rbinom(50,1,0.08),rbinom(50,1,0.05),
 #'                  rbinom(50,1,0.10),rbinom(50,1,0.13),rbinom(50,1,0.14),

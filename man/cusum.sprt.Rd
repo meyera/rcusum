@@ -19,7 +19,7 @@
   acceptable risk, where An odds ratio of 2, for example,
   would equate approximately to a doubling of
   patientspecific risk of failure, an odds ratio of 1.5 to
-  a 50% increase in failure risk, and so on.}
+  a 50 percent increase in failure risk, and so on.}
 
   \item{alpha}{Type I error (the probability of concluding
   that the failure rate has increased, when in fact it has
@@ -50,6 +50,7 @@
   odds ratio), rather than a specific rate.
 }
 \examples{
+set.seed(16)
 df = data.frame(
  is_failure = c(rbinom(50,1,0.10),rbinom(50,1,0.08),rbinom(50,1,0.05),
                  rbinom(50,1,0.10),rbinom(50,1,0.13),rbinom(50,1,0.14),

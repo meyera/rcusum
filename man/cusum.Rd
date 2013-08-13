@@ -38,6 +38,7 @@
   log-likelihood chart as described in Rogers et al. (2004)
 }
 \examples{
+set.seed(16)
 df = data.frame(
  is_failure = c(rbinom(50,1,0.10),rbinom(50,1,0.08),rbinom(50,1,0.05),
                  rbinom(50,1,0.10),rbinom(50,1,0.13),rbinom(50,1,0.14),

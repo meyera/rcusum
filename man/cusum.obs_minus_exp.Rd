@@ -36,6 +36,7 @@
   a failure and decremented by p0 for a success"
 }
 \examples{
+set.seed(16)
 df = data.frame(
  is_failure = c(rbinom(50,1,0.10),rbinom(50,1,0.08),rbinom(50,1,0.05),
                  rbinom(50,1,0.10),rbinom(50,1,0.13),rbinom(50,1,0.14),
