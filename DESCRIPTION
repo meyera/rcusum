@@ -2,10 +2,8 @@ Package: rcusum
 Version: 1.0-0
 Date: 2013-08-13
 Title: Tools for the easy creation cusum analysis charts
-Authors@R: c(person("Alexander", "Meyer", role = c("aut", "cre"),
-    email = "meyer.alexander@gmail.com"))
-Author: Alexander Meyer <meyer.alexander@gmail.com>
-Maintainer: Alexander Meyer <meyer.alexander@gmail.com>
+Author: Alexander Meyer <meyer.alexander+rcusum@gmail.com>
+Maintainer: Alexander Meyer <meyer.alexander+rcusum@gmail.com>
 Depends:
     R (>= 3.0.1)
 License: MIT
@@ -24,5 +22,3 @@ Imports:
 Collate:
     'RCusum-package.r'
     'functions.R'
-    'server.R'
-    'ui.R'
