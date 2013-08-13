@@ -16,4 +16,12 @@
 \author{
   Alexander Meyer
 }
+\references{
+  Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S.,
+  Bonser, R. S., & Angelini, G. D. (2004). Control chart
+  methods for monitoring cardiac surgical performance and
+  their interpretation Chris. The Journal of Thoracic and
+  Cardiovascular Surgery, 128(6), 811–819.
+  doi:10.1016/j.jtcvs.2004.03.011
+}
 
