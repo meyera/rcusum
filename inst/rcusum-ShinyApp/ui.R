@@ -29,28 +29,58 @@ shinyUI(pageWithSidebar(
     tags$br(),
     sliderInput("alpha", 
                 "Alpha-Level: Type I error rate", 
-                min = 0,
-                max = 0.5, 
+                min = 0.001,
+                max = 0.2, 
                 value = 0.01,
-                step=0.01
+                ticks=TRUE,
+                step=0.002
                 ),
     sliderInput("beta", 
                 "Beta-Level: Type II error rate", 
-                min = 0,
-                max = 0.5, 
+                min = 0.001,
+                max = 0.2, 
                 value = 0.01,
-                step=0.01
-    )
+                ticks=TRUE,
+                step=0.002
+    ),
+    br(),
+    HTML("Please report bugs, errors and comments/suggestions to <a href='mailto:meyer.alexander+github@gmail.com'>me</a>.")
   ),
   
   # Show a plot of the generated distribution
   mainPanel(
     tabsetPanel(
-      tabPanel("Data", textOutput("strContents"),tableOutput('contents')),
+      tabPanel("Data", tableOutput('contents')),
       tabPanel("Unadjusted Cusum Analysis",
+               sliderInput("p0", 
+                           "p0: The acceptable failure rate", 
+                           min = 0.01,
+                           max = 0.30, 
+                           value = 0.1,
+                           ticks=TRUE,
+                           step=0.01
+               ),
+               sliderInput("p1", 
+                           "p1: The unacceptable failure rate", 
+                           min = 0.01,
+                           max = 0.30, 
+                           value = 0.2,
+                           ticks=TRUE,
+                           step=0.01
+               ),
+               tags$hr(),
                plotOutput("unadjusted")
                ),
       tabPanel("Risk-Adjusted Cusum Analysis",
+               uiOutput("p0_variable_chooser"),
+               sliderInput("OR", 
+                           "OR: The unacceptable realtive increase of failure compared to estimated risk", 
+                           min = 1.00,
+                           max = 3.00, 
+                           value = 1.5,
+                           ticks=TRUE,
+                           step=0.01
+               ),
                plotOutput("risk_adjusted")
                ),
       tabPanel("Help", tags$a(href="https://github.com/meyera/rcusum", "Go to the package development website for help"))
