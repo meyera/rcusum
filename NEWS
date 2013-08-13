@@ -1,8 +1,10 @@
-Package: RCusum
-Title: 
-Description: 
-Version: 0.1
-Authors@R: # getOptions('devtools.desc.author')
-Depends: R (>= 3.0.1)
-License: # getOptions('devtools.desc.license')
-LazyData: true
+rcusum 1.0
+===========
+
+* added an ShinyApp to interactivly perform cusum analysis
+
+* new `cusum.obs_minus_exp` function which implements cumulative observed minus expected failure plots for unadjusted and risk adjusted analysis
+
+* new `cusum.sprt` is the risk-adjusted sequential probability ratio test (SPRT) chart with control limits. Basically the risk-adjust counterpart of the cusum log-likelihood chart.
+
+* new `cusum` function implemets cusum chart and cusum log-likelihood chart with control limits for performing formal hypothesis testing
