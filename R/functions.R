@@ -20,12 +20,45 @@ df = data.frame(
     by=rep(factor(c("Surgeon A", "Surgeon B", "Surgeon C")), times=c(150,150,150))
   )
 
-## Implementation of a cumulative observed minus expected failure graph as described in
-## Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S., Bonser, R. S., & Angelini, G. D. (2004). Control chart methods for monitoring cardiac surgical performance and their interpretation Chris. The Journal of Thoracic and Cardiovascular Surgery, 128(6), 811–819. doi:10.1016/j.jtcvs.2004.03.011 
-## @failure_indicator indicator variable consiting of c(0,1), where 0 is no failure and 1 is failure for each procedure
-## @p0 either a constant which represents then the acceptable event rate, or a numeric vector representing the acceptable risk score for each single individual. The later is used when plotting risk audjusted scores. This is then equal to an VLAD (variable life adjusted displays) or CRAM (cumulative risk adjusted mortality) chart 
-##
-## "The graph starts at 0, but is incremented by 1 - p0 for a failure and decremented by p0 for a success"
+#' Creats a cumulative observed minus expected failure plot
+#'
+#' Implementation of an unadjusted or risk-adjusted cumulative observed minus expected failure graph as described in Rogers et al. (2004)
+#' 
+#' "The graph starts at 0, but is incremented by 1 - p0 for a failure and decremented by p0 for a success"
+#' 
+#' @param failure_indicator a numeric indicator variable consiting of only \code{c(0,1)}, where 0 is no failure and 1 is failure for each procedure
+#' @param p0 either a constant which represents the acceptable event rate, or a numeric vector representing the acceptable risk score for each single individual. The later is used when plotting risk audjusted scores. This is then equal to an VLAD (variable life adjusted displays) or CRAM (cumulative risk adjusted mortality) chart 
+#' @param by a factor vector consisting of the stratification variable.
+#' @param scale_ylim Limits the Y axis scale
+#' 
+#' @return an object of the class \code{ggplot}
+#' 
+#' @author Alexander Meyer
+#' @family cusum
+#' @export
+#' 
+#' @references Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S., Bonser, R. S., & Angelini, G. D. (2004). Control chart methods for monitoring cardiac surgical performance and their interpretation Chris. The Journal of Thoracic and Cardiovascular Surgery, 128(6), 811–819. doi:10.1016/j.jtcvs.2004.03.011 
+#' 
+#' @examples
+#' df = data.frame(
+#'  is_failure = c(rbinom(50,1,0.10),rbinom(50,1,0.08),rbinom(50,1,0.05),
+#'                  rbinom(50,1,0.10),rbinom(50,1,0.13),rbinom(50,1,0.14),
+#'                  rbinom(50,1,0.14),rbinom(50,1,0.09),rbinom(50,1,0.25)
+#'  ),
+#'  p0 = c(rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),
+#'          rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),
+#'          rnorm(50, 0.10, 0.03),rnorm(50, 0.15, 0.03),rnorm(50, 0.20, 0.03)
+#'  ),
+#'  by=rep(factor(c("Surgeon A", "Surgeon B", "Surgeon C")), times=c(150,150,150))
+#' )
+#' cp= cusum.obs_minus_exp(rbinom(200,1,0.10), c(rnorm(100, 0.10, 0.03),rnorm(100, 0.10, 0.03)))
+#' print(cp)
+#' cp= cusum.obs_minus_exp(rbinom(200,1,0.10), 0.10)
+#' print(cp)
+#' cp= cusum.obs_minus_exp(df$is_failure, 0.10, by=df$by)
+#' print(cp)
+#' cp= cusum.obs_minus_exp(df$is_failure, df$p0, by=df$by)
+#' print(cp)
 cusum.obs_minus_exp = function(failure_indicator, p0, by=NULL, scale_ylim = 20) {
   require(ggplot2)
   require(plyr)
@@ -102,19 +135,49 @@ cusum.obs_minus_exp = function(failure_indicator, p0, by=NULL, scale_ylim = 20) 
   p <- p + common_theme
   return(p)
 }
-
 #cp= cusum.obs_minus_exp(rbinom(200,1,0.10), c(rnorm(100, 0.10, 0.03),rnorm(100, 0.10, 0.03)))
 #cp= cusum.obs_minus_exp(rbinom(200,1,0.10), 0.10)
 #cp= cusum.obs_minus_exp(df$is_failure, 0.10, by=df$by)
 #cp= cusum.obs_minus_exp(df$is_failure, df$p0, by=df$by)
 #print(cp + ggthemes::theme_few())
 
-## Implementation of a cusum chart and cusum log-likelihood chart with control limits as described in
-## Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S., Bonser, R. S., & Angelini, G. D. (2004). Control chart methods for monitoring cardiac surgical performance and their interpretation Chris. The Journal of Thoracic and Cardiovascular Surgery, 128(6), 811–819. doi:10.1016/j.jtcvs.2004.03.011 
-## in Appendix A
-## @failure_indicator indicator variable consiting of c(0,1), where 0 is no failure and 1 is failure for each procedure
-## @p0 the acceptable event rate
-## @p1 the unacceptable event rate we want to detect
+
+#' Creats a cusum chart and cusum log-likelihood chart
+#'
+#' Implementation of an unadjusted cusum chart and cusum log-likelihood chart as described in Rogers et al. (2004)
+#' 
+#' @param failure_indicator a numeric indicator variable consiting of only \code{c(0,1)}, where 0 is no failure and 1 is failure for each procedure
+#' @param p0 a constant representing the fixed acceptable event rate when the process is in control
+#' @param p1 a constant representing the fixed unacceptable event rate we want to detect
+#' @param alpha Type I error (the probability of concluding that the failure rate has increased, when in fact it has not)
+#' @param beta Type II error (the probability of concluding that the failure rate has not increased, when in fact it has)
+#' @param by a factor vector consisting of the stratification variable.
+#' @param loglike_chart a flag controling which kind of chart will be shown
+#'
+#' @return an object of the class \code{ggplot}
+#' 
+#' @author Alexander Meyer
+#' @family cusum
+#' @export
+#' 
+#' @references Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S., Bonser, R. S., & Angelini, G. D. (2004). Control chart methods for monitoring cardiac surgical performance and their interpretation Chris. The Journal of Thoracic and Cardiovascular Surgery, 128(6), 811–819. doi:10.1016/j.jtcvs.2004.03.011 
+#' 
+#' @examples
+#' df = data.frame(
+#'  is_failure = c(rbinom(50,1,0.10),rbinom(50,1,0.08),rbinom(50,1,0.05),
+#'                  rbinom(50,1,0.10),rbinom(50,1,0.13),rbinom(50,1,0.14),
+#'                  rbinom(50,1,0.14),rbinom(50,1,0.09),rbinom(50,1,0.25)
+#'  ),
+#'  p0 = c(rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),
+#'          rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),
+#'          rnorm(50, 0.10, 0.03),rnorm(50, 0.15, 0.03),rnorm(50, 0.20, 0.03)
+#'  ),
+#'  by=rep(factor(c("Surgeon A", "Surgeon B", "Surgeon C")), times=c(150,150,150))
+#' )
+#' cusum_plot = cusum(df$is_failure, .10, .20, alpha=0.01,beta=0.01, loglike_chart=TRUE, by=df$by)
+#' print(cusum_plot)
+#' cusum_plot = cusum(df$is_failure, .10, .20, alpha=0.01,beta=0.01, loglike_chart=FALSE, by=df$by)
+#' print(cusum_plot)
 cusum = function(failure_indicator, p0, p1, alpha=.01, beta=.01, by=NULL, loglike_chart=FALSE) {
   require(plyr)
   require(ggplot2)
@@ -208,24 +271,49 @@ cusum = function(failure_indicator, p0, p1, alpha=.01, beta=.01, by=NULL, loglik
   
   return(p)
 }
-
 #cusum_plot = cusum(df$is_failure, .10, .20, alpha=0.01,beta=0.01, loglike_chart=TRUE, by=df$by)
 #print(cusum_plot)
 
 
-## Implementation of a risk-adjusted sequential probability ratio test (SPRT) chart with control limits as described in
-## Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S., Bonser, R. S., & Angelini, G. D. (2004). Control chart methods for monitoring cardiac surgical performance and their interpretation Chris. The Journal of Thoracic and Cardiovascular Surgery, 128(6), 811–819. doi:10.1016/j.jtcvs.2004.03.011 
-## in Appendix A
-##
-## For the unadjusted chart, increase in risk is defined in terms of the unacceptable failure rate. However, when risk for each patient varies, it does not make sense to have a common unacceptable rate applied across all operations
-##
-## This variable unacceptable rate is achieved by defining the increase in terms of a relative risk (ie, odds ratio), rather than a specific rate.
-##
-##
-## @failure_indicator indicator variable consiting of c(0,1), where 0 is no failure and 1 is failure for each procedure
-## @p0 a numeric vector representing the acceptable risk score/acceptable failure rate for each single individual. I.e. STS Score values, or emperically modeled risks
-## @OR the increase in relative risk to the modeled acceptable risk, where An odds ratio of 2, for example, would equate approximately to a doubling of patientspecific risk of failure, an odds ratio of 1.5 to a 50% increase in failure risk, and so on.
-
+#' Creats a risk-adjusted sequential probability ratio test (SPRT) chart
+#'
+#' Implementation of a risk-adjusted sequential probability ratio test (SPRT) chart with control limits as described in Rogers et al. (2004)
+#' 
+#' For the unadjusted chart, increase in risk is defined in terms of the unacceptable failure rate. However, when risk for each patient varies, it does not make sense to have a common unacceptable rate applied across all operations.
+#' This variable unacceptable rate is achieved by defining the increase in terms of a relative risk (ie. odds ratio), rather than a specific rate.
+#' 
+#' @param failure_indicator a numeric indicator variable consiting of only \code{c(0,1)}, where 0 is no failure and 1 is failure for each procedure
+#' @param p0 a numeric vector representing the acceptable risk score/acceptable failure rate for each single individual. I.e. STS Score values, or emperically modeled risks
+#' @param OR the increase in relative risk to the modeled acceptable risk, where An odds ratio of 2, for example, would equate approximately to a doubling of patientspecific risk of failure, an odds ratio of 1.5 to a 50% increase in failure risk, and so on.
+#' @param alpha Type I error (the probability of concluding that the failure rate has increased, when in fact it has not)
+#' @param beta Type II error (the probability of concluding that the failure rate has not increased, when in fact it has)
+#' @param by a factor vector consisting of the stratification variable.
+#'
+#' @return an object of the class \code{ggplot}
+#' 
+#' @author Alexander Meyer
+#' @family cusum
+#' @export
+#' 
+#' @references Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S., Bonser, R. S., & Angelini, G. D. (2004). Control chart methods for monitoring cardiac surgical performance and their interpretation Chris. The Journal of Thoracic and Cardiovascular Surgery, 128(6), 811–819. doi:10.1016/j.jtcvs.2004.03.011 
+#' 
+#' @examples
+#' df = data.frame(
+#'  is_failure = c(rbinom(50,1,0.10),rbinom(50,1,0.08),rbinom(50,1,0.05),
+#'                  rbinom(50,1,0.10),rbinom(50,1,0.13),rbinom(50,1,0.14),
+#'                  rbinom(50,1,0.14),rbinom(50,1,0.09),rbinom(50,1,0.25)
+#'  ),
+#'  p0 = c(rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),
+#'          rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),
+#'          rnorm(50, 0.10, 0.03),rnorm(50, 0.15, 0.03),rnorm(50, 0.20, 0.03)
+#'  ),
+#'  by=rep(factor(c("Surgeon A", "Surgeon B", "Surgeon C")), times=c(150,150,150))
+#' )
+#' 
+#' sprt1= cusum.sprt(rbinom(200,1,0.10), rnorm(200, 0.10, 0.03), 1.5)
+#' print(sprt1)
+#' sprt2= cusum.sprt(df$is_failure, df$p0, 1.5, by=df$by)
+#' print(sprt2)
 cusum.sprt = function(failure_indicator, p0, OR, alpha=.01, beta=.01, by=NULL) {
   require(plyr)
   require(ggplot2)

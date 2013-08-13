@@ -1,5 +1,6 @@
 rcusum 1.0
 ===========
+* added function documentation
 
 * added an ShinyApp to interactivly perform cusum analysis
 
