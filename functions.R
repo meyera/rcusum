@@ -107,7 +107,7 @@ cusum.obs_minus_exp = function(failure_indicator, p0, by=NULL, scale_ylim = 20) 
 #cp= cusum.obs_minus_exp(rbinom(200,1,0.10), 0.10)
 #cp= cusum.obs_minus_exp(df$is_failure, 0.10, by=df$by)
 #cp= cusum.obs_minus_exp(df$is_failure, df$p0, by=df$by)
-#print(cp)
+#print(cp + ggthemes::theme_few())
 
 ## Implementation of a cusum chart and cusum log-likelihood chart with control limits as described in
 ## Rogers, C. A., Reeves, B. C., Caputo, M., Ganesh, J. S., Bonser, R. S., & Angelini, G. D. (2004). Control chart methods for monitoring cardiac surgical performance and their interpretation Chris. The Journal of Thoracic and Cardiovascular Surgery, 128(6), 811–819. doi:10.1016/j.jtcvs.2004.03.011 
