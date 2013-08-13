@@ -28,5 +28,5 @@ rcusum Shiny App
 You can try some functions of the package interactivly in a Shiny App:
 ```
 require(shiny)
-shiny::runGitHub(repo="rcusum",username="meyera", subdir = "R/")
+shiny::runGitHub(repo="rcusum",username="meyera", subdir = "inst/rcusum-ShinyApp")
 ```
