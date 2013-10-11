@@ -1,5 +1,4 @@
-library(ggplot2)
- 
+library(ggplot2) 
 set.seed(16)
 common_theme = theme_bw() + theme(axis.line=element_line(colour="black")
                                   ,panel.grid.major=element_blank()
@@ -9,16 +8,16 @@ common_theme = theme_bw() + theme(axis.line=element_line(colour="black")
                                   ,strip.background=element_rect(fill="grey96"))
 
 df = data.frame(
-    is_failure = c(rbinom(50,1,0.10),rbinom(50,1,0.08),rbinom(50,1,0.05),
-                   rbinom(50,1,0.10),rbinom(50,1,0.13),rbinom(50,1,0.14),
-                   rbinom(50,1,0.14),rbinom(50,1,0.09),rbinom(50,1,0.25)
-                   ),
-    p0 = c(rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),
-           rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),
-           rnorm(50, 0.10, 0.03),rnorm(50, 0.15, 0.03),rnorm(50, 0.20, 0.03)
-          ),
-    by=rep(factor(c("Surgeon A", "Surgeon B", "Surgeon C")), times=c(150,150,150))
-  )
+  is_failure = c(rbinom(50,1,0.10),rbinom(50,1,0.08),rbinom(50,1,0.05),
+                 rbinom(50,1,0.10),rbinom(50,1,0.13),rbinom(50,1,0.14),
+                 rbinom(50,1,0.14),rbinom(50,1,0.09),rbinom(50,1,0.25)
+  ),
+  p0 = c(rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),
+         rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),rnorm(50, 0.10, 0.03),
+         rnorm(50, 0.10, 0.03),rnorm(50, 0.15, 0.03),rnorm(50, 0.20, 0.03)
+  ),
+  by=rep(factor(c("Surgeon A", "Surgeon B", "Surgeon C")), times=c(150,150,150))
+)
 
 #' Creats a cumulative observed minus expected failure plot
 #'
@@ -123,9 +122,9 @@ cusum.obs_minus_exp = function(failure_indicator, p0, by=NULL, scale_ylim = 20) 
   }
   
   if (is.null(by)) {
-    p = ggplot(d, aes(x=n,y=failure_line))
+    p = ggplot(d, aes_string(x="n",y="failure_line"))
   } else {
-    p = ggplot(d, aes(x=n,y=failure_line, linetype=by))
+    p = ggplot(d, aes_string(x="n",y="failure_line", color="by"))
   }
   p = p + geom_hline(yintercept=0, linetype=6, size=1)
   p = p + geom_step()
@@ -234,9 +233,9 @@ cusum = function(failure_indicator, p0, p1, alpha=.01, beta=.01, by=NULL, loglik
     d_ = cbind(d, h0=rep(h0,times=nrow(d)), h1=rep(h1, times=nrow(d)))
 
     if (is.null(by)) {
-      p = ggplot(data=d_, aes(y=T_horizontal,x=n))
+      p = ggplot(data=d_, aes_string(y="T_horizontal",x="n"))
     } else {
-      p = ggplot(data=d_, aes(y=T_horizontal,x=n, linetype=by))
+      p = ggplot(data=d_, aes_string(y="T_horizontal",x="n", color="by"))
     }
     
     p = p + geom_step() 
@@ -253,12 +252,12 @@ cusum = function(failure_indicator, p0, p1, alpha=.01, beta=.01, by=NULL, loglik
     if (is.null(by)) {
       p = ggplot(data=d ,aes(y=cusum,x=n))
     } else {
-      p = ggplot(data=d ,aes(y=cusum,x=n, linetype=by))
+      p = ggplot(data=d ,aes(y=cusum,x=n, color=by))
     }
     
     p = p + geom_step() 
-    p = p + geom_line(mapping=aes(x=n,y=l0),linetype=2)
-    p = p + geom_line(mapping=aes(x=n,y=l1),linetype=2)
+    p = p + geom_line(mapping=aes_string(x="n",y="l0"),linetype=2)
+    p = p + geom_line(mapping=aes_string(x="n",y="l1"),linetype=2)
     
     p <- p + annotate("text", label=paste("Accept H1"), x=-Inf, y=Inf, vjust=1.3, hjust=-0.3)#x=n/3, y=(n/2)*p1*1.0)
     p <- p + annotate("text", label=paste("Accept H0"), x=Inf, y=-Inf, vjust=-1.2, hjust=1.3)#x=n/1.5, y=(n/2)*(p0*1.0))
@@ -362,9 +361,9 @@ cusum.sprt = function(failure_indicator, p0, OR, alpha=.01, beta=.01, by=NULL) {
   d_ = cbind(d, h0=rep(h0,times=nrow(d)), h1=rep(h1, times=nrow(d)))
   
   if (is.null(by)) {
-    p = ggplot(data=d_, aes(y=T_horizontal,x=n))
+    p = ggplot(data=d_, aes_string(y="T_horizontal",x="n"))
   } else {
-    p = ggplot(data=d_, aes(y=T_horizontal,x=n, linetype=by))
+    p = ggplot(data=d_, aes_string(y="T_horizontal",x="n", color="by"))
   }
   
   p = p + geom_step() 
