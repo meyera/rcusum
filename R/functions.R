@@ -239,8 +239,8 @@ cusum = function(failure_indicator, p0, p1, alpha=.01, beta=.01, by=NULL, loglik
     }
     
     p = p + geom_step() 
-    p = p + geom_hline(yintercept=-h0, linetype=2)
-    p = p + geom_hline(yintercept=h1, linetype=2)
+    p = p + geom_hline(yintercept=-h0, linetype=2, color="black")
+    p = p + geom_hline(yintercept=h1, linetype=2, color="black")
     p = p + geom_hline(yintercept=0, color="lightgrey")
     
     p = p + ylab("Cumulative log-likelihood ratio")
@@ -256,8 +256,8 @@ cusum = function(failure_indicator, p0, p1, alpha=.01, beta=.01, by=NULL, loglik
     }
     
     p = p + geom_step() 
-    p = p + geom_line(mapping=aes_string(x="n",y="l0"),linetype=2)
-    p = p + geom_line(mapping=aes_string(x="n",y="l1"),linetype=2)
+    p = p + geom_line(mapping=aes_string(x="n",y="l0"),linetype=2, color="black")
+    p = p + geom_line(mapping=aes_string(x="n",y="l1"),linetype=2, color="black")
     
     p <- p + annotate("text", label=paste("Accept H1"), x=-Inf, y=Inf, vjust=1.3, hjust=-0.3)#x=n/3, y=(n/2)*p1*1.0)
     p <- p + annotate("text", label=paste("Accept H0"), x=Inf, y=-Inf, vjust=-1.2, hjust=1.3)#x=n/1.5, y=(n/2)*(p0*1.0))
@@ -367,8 +367,8 @@ cusum.sprt = function(failure_indicator, p0, OR, alpha=.01, beta=.01, by=NULL) {
   }
   
   p = p + geom_step() 
-  p = p + geom_hline(yintercept=-h0, linetype=2)
-  p = p + geom_hline(yintercept=h1, linetype=2)
+  p = p + geom_hline(yintercept=-h0, linetype=2, color="black")
+  p = p + geom_hline(yintercept=h1, linetype=2, color="black")
   p = p + geom_hline(yintercept=0, color="lightgrey")
   
   p = p + ylab("Cumulative log-likelihood ratio")
