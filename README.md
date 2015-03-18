@@ -23,6 +23,7 @@ If the cusum curve...
  
 _"The natural progression of the graph for an individual or institution with acceptable performance is toward the lower boundary for this method of constructing control limits."_  (Rogers et. al, 2004)
 
+
 rcusum Shiny App
 -----------------
 You can try some functions of the package interactivly in a Shiny App:
