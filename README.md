@@ -1,6 +1,6 @@
 rcusum - An Implementation of Cusum Control Charts as an R package
 ============
-Author: Alexander Meyer [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.51159.svg)](https://zenodo.org/record/51159#.Vy-OCvmLRhE)
+Author: Alexander Meyer [![DOI](https://zenodo.org/badge/21914/meyera/rcusum.svg)](https://zenodo.org/badge/latestdoi/21914/meyera/rcusum)
 
 This R Package implements the charts as described by _Rogers et al. (2004, doi:10.1016/j.jtcvs.2004.03.011)_. Cusum control charts are devices for monitoring arbitrary processes for a prespecified event. This package and manual uses the term failure instead of event, although any other type of event such as successes could be monitored as well. The processes of our interest are typically surgical procedures.
 
